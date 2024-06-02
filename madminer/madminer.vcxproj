@@ -238,9 +238,9 @@
     <ClCompile Include="madminer.cpp" />
     <ClCompile Include="render.cpp" />
     <ClCompile Include="scenes.cpp" />
-    <ClCompile Include="gameobjectmanager.cpp" />
+    <ClCompile Include="objectmanager.cpp" />
     <ClCompile Include="textgenerator.cpp" />
-    <ClCompile Include="userinteraction.cpp" />
+    <ClCompile Include="userinput.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="header.h" />
@@ -250,11 +250,14 @@
     <Folder Include="data\Saves\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="data\Fonts\font.ttf" />
+    <Content Include="data\Music\main_title.ogg" />
     <Content Include="data\settings.txt" />
     <Content Include="data\Textures\diamond.png" />
     <Content Include="data\Textures\diamond_rock.png" />
     <Content Include="data\Textures\gold.png" />
     <Content Include="data\Textures\gold_rock.png" />
+    <Content Include="data\Textures\main_menu_background.png" />
     <Content Include="data\Textures\rock.png" />
     <Content Include="data\Textures\rockD.png" />
     <Content Include="data\Textures\rockDR.png" />

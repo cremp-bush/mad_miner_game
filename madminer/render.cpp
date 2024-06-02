@@ -1,18 +1,24 @@
 #include <iostream>
 #include "header.h"
-
 using namespace std;
 
-void renderGameObjects()
+void renderGUIObjects()
 {
-    if(gameObjectList.count == 0);
+    if(guiObjectList.count == 0);
     else
     {
-        GameObject *e = gameObjectList.head;
+        GUIObject *e = guiObjectList.head;
         while(e != NULL)
         {
             SDL_RenderCopy(renderer, e->texture, NULL, &e->rect);
             e = e->next;
         }
     }
+}
+
+void updateFrame()
+{
+    SDL_RenderClear(renderer);
+    renderGUIObjects();
+    SDL_RenderPresent(renderer);
 }

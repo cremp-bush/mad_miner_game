@@ -2,31 +2,30 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include "header.h"
-
 using namespace std;
 
-GameObject textGenerator(string name, string text, int x, int y, int size, string allign, bool isButton)
+SDL_Texture* textGenerator(TextInfo text_info)
 {
-    GameObject object;
-    TTF_Font *font = TTF_OpenFont("data/font.ttf", size);
-    SDL_Surface *textSurface = TTF_RenderUTF8_Solid(font, text.c_str(), black);
-    TTF_CloseFont(font);
-
-    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    /* Создание шрифта с обводкой */
+    TTF_Font *text = TTF_OpenFont(("data/Fonts/" + text_info.font_name).c_str(), text_info.font_size);
+    TTF_Font *outline = TTF_OpenFont(("data/Fonts/" + text_info.font_name).c_str(), text_info.font_size);
+    TTF_SetFontOutline(outline, 2);
+    /* Рендер текста */
+    SDL_Surface *textSurface = TTF_RenderUTF8_Blended(text, text_info.text.c_str(), text_info.color);
+    SDL_Surface *textOutline = TTF_RenderUTF8_Blended(outline, text_info.text.c_str(), {225, 225, 225});
+    /* Нанесение обводки на текст */
+    SDL_Rect rect = {2, 2, textSurface->w, textSurface->h};
+    SDL_SetSurfaceBlendMode(textSurface, SDL_BLENDMODE_BLEND);
+    SDL_BlitSurface(textSurface, NULL, textOutline, &rect);
+    /* Уничтожение шрифтов */
+    TTF_CloseFont(text);
+    TTF_CloseFont(outline);
+    
+    /* Конвертация SDL_Surface в SDL_Texture */
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(renderer, textOutline);
+    /* Уничтожение SDL_Surface */
+    SDL_FreeSurface(textOutline);
     SDL_FreeSurface(textSurface);
     
-    SDL_QueryTexture(textTexture, nullptr, nullptr, &object.rect.w, &object.rect.h);
-
-    if(allign == "left") object.rect.x = x;
-    else if(allign == "center") object.rect.x = x-object.rect.w/2;
-    else if(allign == "right") object.rect.x = x-object.rect.w;
-
-    object.name = name;
-    object.rect.y = y;
-    object.isButton = isButton;
-    object.textInfo.text = text;
-    object.textInfo.size = size;
-    object.textInfo.allign = allign;
-    object.texture = textTexture;
-    return object;
+    return textTexture;
 }

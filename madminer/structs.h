@@ -1,57 +1,85 @@
 ﻿#pragma once
 #include <iostream>
+#include <SDL.h>;
+#include <SDL_ttf.h>;
 using namespace std;
 
 //GUI structs
+/* Информация о тексте */
 struct TextInfo
 {
     string text = "";
-    int size;
+    string font_name = "";
+    unsigned short font_size = 0;
     string allign = "";
+    SDL_Color color = {0, 0, 0};
 };
 
-struct GameObject
+/* Элементы GUI */
+struct GUIObject
 {
     string name = "";
-    SDL_Rect rect = {0};
+    SDL_Rect rect = {0,0,0,0};
     SDL_Texture *texture = NULL;
-    bool isButton = false;
-    TextInfo textInfo;
-    GameObject *next = NULL;
+    TextInfo *text_info = NULL;
+    GUIObject *next = NULL;
+    float size = 1;
 };
 
-struct GameObjectList
+struct GUIObjectList
 {
-    int count = 0;
-    GameObject *head = NULL;
+    GUIObject *head = NULL;
+    unsigned short count = 0;
 };
 
+/* Элементы GUI - Кнопки */
 struct Button
 {
-    string name = NULL;
-    SDL_Rect rect = {0};
-    SDL_Texture *texture = NULL;
+    GUIObject *object_info = NULL;
     Button *next = NULL;
 };
 
 struct ButtonList
 {
-    int count = 0;
     Button *head = NULL;
+    unsigned short count = 0;
 };
 
-struct Effect
+/* Игровые объекты/предметы */
+struct GameObject
 {
-    string name = NULL;
-    short frames = 1;
-    short current_frame = 1;
-    SDL_Texture *texture;
-    SDL_Rect rect;
-    Effect *next = NULL;
+    string name = "";
+    unsigned short type = 0;
 };
 
-struct EffectList
+struct GameObjectList
 {
-    int count = 0;
-    Effect *head = NULL;
+    GameObject *head = NULL;
+    unsigned short count = 0;
+};
+
+/* Игровые стены */
+struct Wall
+{
+    string name = "";
+    unsigned short type = 0;
+};
+
+struct WallList
+{
+    GameObject *head = NULL;
+    unsigned short count = 0;
+};
+
+/* Игровые газы */
+struct Gas
+{
+    string name = "";
+    unsigned short type = 0;
+};
+
+struct GasList
+{
+    GameObject *head = NULL;
+    unsigned short count = 0;
 };

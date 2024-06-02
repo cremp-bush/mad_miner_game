@@ -1,0 +1,6 @@
+﻿  gameobjectmanager.cpp
+C:\Users\cremp_bush\OneDrive\Рабочий стол\madminer\madminer\structs.h(3,10): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
+C:\Users\cremp_bush\OneDrive\Рабочий стол\madminer\madminer\structs.h(4,10): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
+C:\Users\cremp_bush\OneDrive\Рабочий стол\madminer\madminer\gameobjectmanager.cpp(94,26): warning C4244: *=: преобразование "float" в "int", возможна потеря данных
+C:\Users\cremp_bush\OneDrive\Рабочий стол\madminer\madminer\gameobjectmanager.cpp(95,26): warning C4244: *=: преобразование "float" в "int", возможна потеря данных
+  madminer.vcxproj -> C:\Users\cremp_bush\OneDrive\Рабочий стол\madminer\x64\Debug\madminer.exe

@@ -6,18 +6,10 @@
 
 using namespace std;
 
-GameObject imageGenerator(string name, string path, int x, int y, string allign, int size, bool isButton)
+SDL_Texture* imageGenerator(string image_name)
 {
-    GameObject object;
-    object.name = name;
-    object.rect = {x, y, 32*size, 32*size};
-    object.isButton = isButton;
-    SDL_Texture *texture = IMG_LoadTexture(renderer, path.c_str());
-    SDL_SetTextureScaleMode(texture, SDL_ScaleModeNearest);
-    object.texture = texture;
+    SDL_Texture *image_texture = IMG_LoadTexture(renderer, ("data/Textures/" + image_name).c_str());
+    SDL_SetTextureScaleMode(image_texture, SDL_ScaleModeNearest);
     
-    if(allign == "left") object.rect.x = x;
-    else if(allign == "center") object.rect.x = x-object.rect.w/2;
-    else if(allign == "right") object.rect.x = x-object.rect.w;
-    return object;
+    return image_texture;
 }

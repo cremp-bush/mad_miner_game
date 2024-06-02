@@ -1,69 +1,239 @@
 #include <string>
 #include <SDL.h>
-#include "header.h"
+#include <SDL_mixer.h>
 
+#include "fstream"
+#include "header.h"
 using namespace std;
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Главное меню игры */
+void checkMainMenu()
+{
+    Button *pressed_button = NULL;
+    while(!quit)
+    {
+        pressed_button = userInput();
+        if(pressed_button != NULL)
+        {
+            if(pressed_button->object_info->name == "NewGameButton")
+            {
+                scene = "New Game Menu";
+                quit = true;
+            }
+            /*else if(pressed_button->object_info->name == "LoadGameButton")
+            {
+                scene = "Load Game Menu";
+                quit = true;
+            }*/
+            /*else if(pressed_button->object_info->name == "MultiplayerButton")
+            {
+                scene = "Multiplayer Menu";
+                quit = true;
+            }*/
+            else if(pressed_button->object_info->name == "SettingsButton")
+            {
+                scene = "Settings Menu";
+                quit = true;
+            }
+            else if(pressed_button->object_info->name == "QuitButton")
+            {
+                scene = "Escape";
+                quit = true;
+            }
+        }
+    }
+}
+/* Инициализация главного меню игры */
 void loadMainMenu()
 {
-    select = NULL;
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
-    SDL_RenderClear(renderer);
+    createGUIObject("BackgroundImage", {0,0}, imageGenerator("main_menu_background.png"), "left", 5.3);
+    createGUIObject("GameLogo", {640,50}, {"MINER GAME", "font.ttf", 128, "center", black});
+    createGUIObject("Records", {1230,360}, {"Рекорды", "font.ttf", 64, "right", black});
+    createButton("NewGameButton", {50,360}, {"Новая игра", "font.ttf", 64, "left", black});
+    createButton("LoadGameButton", {50,360+66*1}, {"Загрузить игру", "font.ttf", 64, "left", black});
+    createButton("MultiplayerButton", {50,360+66*2}, {"Мультиплеер", "font.ttf", 64, "left", black});
+    createButton("SettingsButton", {50,360+66*3}, {"Настройки", "font.ttf", 64, "left", black});
+    createButton("QuitButton", {50,360+66*4}, {"Выйти из игры", "font.ttf", 64, "left", black});
     
-    clearGameObjects();
-    createGameObjectEnd(textGenerator("GameLogo", "MINER GAME", 640, 50, 128, "center"));
-    createGameObjectEnd(textGenerator("Records", "Рекорды", 1230, 360, 64, "right"));
-    createGameObjectEnd(textGenerator("NewGameButton", "Новая игра", 50, 360, 64, "left", true));
-    createGameObjectEnd(textGenerator("LoadGameButton", "Загрузить игру", 50, 360+66*1, 64, "left", true));
-    createGameObjectEnd(textGenerator("MultiplayerButton", "Мультиплеер", 50, 360+66*2, 64, "left", true));
-    createGameObjectEnd(textGenerator("SettingsButton", "Настройки", 50, 360+66*3, 64, "left", true));
-    createGameObjectEnd(textGenerator("QuitButton", "Выйти из игры", 50, 360+66*4, 64, "left", true));
-    
-    renderGameObjects();
-    SDL_RenderPresent(renderer);
-}
+    updateFrame();
 
+    checkMainMenu();
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Меню Настроек игры */
+void checkSettingsMenu()
+{
+    Button *pressed_button = NULL;
+    while(!quit)
+    {
+        pressed_button = userInput();
+        if(pressed_button != NULL)
+        {
+            /*else if(pressed_button->object_info->name == "ScreenResolutionButton")
+            {
+                
+            }*/
+            if(pressed_button->object_info->name == "FullscreenModeButton")
+            {
+                if(FULLSCREEN_MODE == false)
+                {
+                    FULLSCREEN_MODE = true;
+                    SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN || SDL_WINDOW_BORDERLESS);
+                }
+                else
+                {
+                    FULLSCREEN_MODE = false;
+                    SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN);
+                }
+                pressed_button->object_info->text_info->text = "> " + to_string(FULLSCREEN_MODE);
+                updateGUIObject(pressed_button->object_info);
+                quit = true;
+            }
+            else if(pressed_button->object_info->name == "VSyncButton")
+            {
+                if(VSYNC == false)
+                {
+                    VSYNC = true;
+                    SDL_DestroyRenderer(renderer);
+                    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED || SDL_RENDERER_PRESENTVSYNC);
+                }
+                else
+                {
+                    VSYNC = false;
+                    SDL_DestroyRenderer(renderer);
+                    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+                }
+                if(FULLSCREEN_MODE)
+                {
+                    SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN);
+                    SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN || SDL_WINDOW_BORDERLESS);
+                }
+                
+                pressed_button->object_info->text_info->text = "> " + to_string(VSYNC);
+                updateGUIObject(pressed_button->object_info);
+                quit = true;
+            }
+            /*else if(pressed_button->object_info->name == "MasterVolumeButton")
+            {
+                
+            }*/
+            /*else if(pressed_button->object_info->name == "MusicVolumeButton")
+            {
+                
+            }*/
+            else if(pressed_button->object_info->name == "ApplyButton")
+            {
+                ofstream settings("data/settings.txt", ios::out);
+                settings.clear();
+                settings
+                << "SCREEN_WIDTH " + to_string(SCREEN_WIDTH) << endl
+                << "SCREEN_HEIGHT " + to_string(SCREEN_HEIGHT) << endl
+                << "VSYNC " + to_string(VSYNC) << endl
+                << "MASTER_VOLUME " + to_string(MASTER_VOLUME) << endl
+                << "MUSIC_VOLUME " + to_string(MUSIC_VOLUME) << endl
+                << "FULLSCREEN_MODE " + to_string(FULLSCREEN_MODE);
+                settings.close();
+            }
+            else if(pressed_button->object_info->name == "ReturnButton")
+            {
+                initSettings();
+                scene = "Main Menu";
+                quit = true;
+            }
+        }
+    }
+}
+/* Инициализация Меню Настроек игры */
 void loadSettingsMenu()
 {
-    select = NULL;
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
-    SDL_RenderClear(renderer);
-
-    clearGameObjects();
-    createGameObjectEnd(textGenerator("SettingsLogo", "Настройки", 160, 60, 64, "left"));
-    createGameObjectEnd(textGenerator("ScreenResolution", "Разрешение экрана", 160, 60+34*2, 32, "left"));
-    createGameObjectEnd(textGenerator("ScreenResolutionButton", to_string(SCREEN_WIDTH)+"x"+to_string(SCREEN_HEIGHT), 1120, 60+34*2, 32, "right", true));
-    createGameObjectEnd(textGenerator("FullscreenMode", "Полноэкранный режим", 160, 60+34*3, 32, "left"));
-    createGameObjectEnd(textGenerator("FullscreenModeButton", to_string(FULLSCREEN_MODE), 1120, 60+34*3, 32, "right", true));
-    createGameObjectEnd(textGenerator("VSync", "VSync", 160, 60+34*4, 32, "left"));
-    createGameObjectEnd(textGenerator("VSyncButton", to_string(VSYNC), 1120, 60+34*4, 32, "right", true));
-    createGameObjectEnd(textGenerator("MasterSound", "Громкость игры", 160, 60+34*5, 32, "left"));
-    createGameObjectEnd(textGenerator("MasterSoundButton", to_string(MASTER_VOLUME), 1120, 60+34*5, 32, "right", true));
-    createGameObjectEnd(textGenerator("MusicSound", "Громкость музыки", 160, 60+34*6, 32, "left"));
-    createGameObjectEnd(textGenerator("MusicSoundButton", to_string(MUSIC_VOLUME), 1120, 60+34*6, 32, "right", true));
-    createGameObjectEnd(textGenerator("ApplyButton", "Применить", 1120, 60+34*8, 48, "right", true));
-    createGameObjectEnd(textGenerator("ToMainMenuButton", "Вернуться", 160, 60+34*8, 48, "left", true));
+    createGUIObject("BackgroundImage", {0,0}, imageGenerator("main_menu_background.png"), "left", 5.3);
+    createGUIObject("SettingsLogo", {160,60}, {"Настройки", "font.ttf", 64, "left"});
+    createGUIObject("ScreenResolution", {160,60+34*2}, {"Разрешение экрана", "font.ttf", 32, "left"});
+    createButton("ScreenResolutionButton", {1120,60+34*2}, {to_string(SCREEN_WIDTH)+"x"+to_string(SCREEN_HEIGHT), "font.ttf", 32, "right"});
+    createGUIObject("FullscreenMode", {160,60+34*3}, {"Полноэкранный режим", "font.ttf", 32, "left"});
+    createButton("FullscreenModeButton", {1120,60+34*3}, {to_string(FULLSCREEN_MODE), "font.ttf", 32, "right"});
+    createGUIObject("VSync", {160,60+34*4}, {"VSync", "font.ttf", 32, "left"});
+    createButton("VSyncButton", {1120,60+34*4}, {to_string(VSYNC), "font.ttf", 32, "right"});
+    createGUIObject("MasterVolume", {160,60+34*5}, {"Громкость игры", "font.ttf", 32, "left"});
+    createButton("MasterVolumeButton", {1120,60+34*5}, {to_string(MASTER_VOLUME), "font.ttf", 32, "right"});
+    createGUIObject("MusicVolume", {160,60+34*6}, {"Громкость музыки", "font.ttf", 32, "left"});
+    createButton("MusicVolumeButton", {1120,60+34*6}, {to_string(MUSIC_VOLUME), "font.ttf", 32, "right"});
+    createButton("ApplyButton", {1120,60+34*8}, {"Применить", "font.ttf", 48, "right"});
+    createButton("ReturnButton", {160,60+34*8}, {"Вернуться", "font.ttf", 48, "left"});
     
-    renderGameObjects();
-    SDL_RenderPresent(renderer);
-}
+    updateFrame();
 
+    checkSettingsMenu();
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Меню Новой игры */
+void checkNewGameMenu()
+{
+    Button *pressed_button = NULL;
+    while(!quit)
+    {
+        pressed_button = userInput();
+        if(pressed_button != NULL)
+        {
+            /*else if(pressed_button->object_info->name == "Mode1")
+            {
+                scene = "";
+                quit = true;
+            }*/
+            /*else if(pressed_button->object_info->name == "Mode2")
+            {
+                scene = "";
+                quit = true;
+            }*/
+            /*else if(pressed_button->object_info->name == "Mode3")
+            {
+                scene = "";
+                quit = true;
+            }*/
+            if(pressed_button->object_info->name == "ReturnButton")
+            {
+                scene = "Main Menu";
+                quit = true;
+            }
+        }
+    }
+}
+/* Инициализация Меню Новой игры */
 void loadNewGameMenu()
 {
-    select = NULL;
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 0);
-    SDL_RenderClear(renderer);
+    createGUIObject("BackgroundImage", {0,0}, imageGenerator("main_menu_background.png"), "left", 5.3);
+    createGUIObject("SelectDifficulty", {640,150}, {"Выберите сложность", "font.ttf", 64, "center", black});
+    createButton("Mode1", {160,500}, {"Лёгкая", "font.ttf", 64, "left", black});
+    createGUIObject("Mode1Image", {160,250}, imageGenerator("diamond_rock.png"), "left", 6);
+    createButton("Mode2", {640,500}, {"Средняя", "font.ttf", 64, "center", black});
+    createGUIObject("Mode2Image", {640,250}, imageGenerator("gold_rock.png"), "center", 6);
+    createButton("Mode3", {1120,500}, {"Хардкор", "font.ttf", 64, "right", black});
+    createGUIObject("Mode3Image", {1120,250}, imageGenerator("rock.png"), "right", 6);
+    createButton("ReturnButton", {160,600}, {"Вернуться", "font.ttf", 64, "left", black});
     
-    clearGameObjects();
-    createGameObjectEnd(textGenerator("SelectDifficulty", "Выберите сложность", 640, 150, 64, "center"));
-    createGameObjectEnd(textGenerator("Mode1", "Лёгкая", 160, 500, 64, "left", true));
-    createGameObjectEnd(imageGenerator("Mode1Image", "data/Textures/diamond_rock.png", 160+96, 250, "center", 6));
-    createGameObjectEnd(textGenerator("Mode2", "Средняя", 640, 500, 64, "center", true));
-    createGameObjectEnd(imageGenerator("Mode2Image", "data/Textures/gold_rock.png", 640, 250, "center", 6));
-    createGameObjectEnd(textGenerator("Mode3", "Хардкор", 1120, 500, 64, "right", true));
-    createGameObjectEnd(imageGenerator("Mode3Image", "data/Textures/rock.png", 1120-96-24, 250, "center", 6));
-    createGameObjectEnd(textGenerator("ToMainMenuButton", "Вернуться", 160, 600, 64, "left", true));
-    
-    renderGameObjects();
-    SDL_RenderPresent(renderer);
+    updateFrame();
+
+    checkNewGameMenu();
+}
+
+void checkGame()
+{
+    Button *pressed_button = NULL;
+    while(!quit)
+    {
+        pressed_button = userInput();
+        if(pressed_button != NULL)
+        {
+            if(pressed_button->object_info->name == "ReturnButton")
+            {
+                scene = "Main Menu";
+                quit = true;
+            }
+        }
+    }
+}
+
+void loadGame()
+{
 }
