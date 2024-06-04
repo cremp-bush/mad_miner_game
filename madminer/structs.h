@@ -6,13 +6,26 @@ using namespace std;
 
 //GUI structs
 /* Информация о тексте */
+struct Texture
+{
+    string name;
+    SDL_Texture *texture;
+    Texture *next = NULL;
+};
+
+struct TextureList
+{
+    Texture *head = NULL;
+    unsigned short count = 0;
+};
+
 struct TextInfo
 {
-    string text = "";
-    string font_name = "";
-    unsigned short font_size = 0;
-    string allign = "";
-    SDL_Color color = {0, 0, 0};
+    string text;
+    string font_name;
+    unsigned short font_size;
+    string allign;
+    SDL_Color color;
 };
 
 /* Элементы GUI */
@@ -45,11 +58,30 @@ struct ButtonList
     unsigned short count = 0;
 };
 
+/* Игровые жидкости */
+struct Ground
+{
+    string name = "";
+    SDL_Rect rect;
+    SDL_Texture *texture = NULL;
+    unsigned short id = 0;
+    Ground *next = NULL;
+};
+
+struct GroundList
+{
+    Ground *head = NULL;
+    unsigned short count = 0;
+};
+
 /* Игровые объекты/предметы */
 struct GameObject
 {
-    string name = "";
-    unsigned short type = 0;
+    string name;
+    SDL_Rect rect;
+    SDL_Texture *texture;
+    unsigned short id;
+    GameObject *next = NULL;
 };
 
 struct GameObjectList
@@ -61,13 +93,16 @@ struct GameObjectList
 /* Игровые стены */
 struct Wall
 {
-    string name = "";
+    int x;
+    int y;
     unsigned short type = 0;
+    unsigned short id = 0;
+    Wall *next = NULL;
 };
 
 struct WallList
 {
-    GameObject *head = NULL;
+    Wall *head = NULL;
     unsigned short count = 0;
 };
 
@@ -75,11 +110,23 @@ struct WallList
 struct Gas
 {
     string name = "";
-    unsigned short type = 0;
+    SDL_Rect rect;
+    SDL_Texture *texture = NULL;
+    unsigned short id = 0;
+    Gas *next = NULL;
 };
 
 struct GasList
 {
     GameObject *head = NULL;
     unsigned short count = 0;
+};
+
+/* Игрок */
+struct Player
+{
+    int x;
+    int y;
+    Texture *texture;
+    int health = 100;
 };

@@ -13,33 +13,36 @@ void checkMainMenu()
     Button *pressed_button = NULL;
     while(!quit)
     {
-        pressed_button = userInput();
-        if(pressed_button != NULL)
+        if(SDL_PollEvent(&event))
         {
-            if(pressed_button->object_info->name == "NewGameButton")
+            pressed_button = userInput();
+            if(pressed_button != NULL)
             {
-                scene = "New Game Menu";
-                quit = true;
-            }
-            /*else if(pressed_button->object_info->name == "LoadGameButton")
-            {
-                scene = "Load Game Menu";
-                quit = true;
-            }*/
-            /*else if(pressed_button->object_info->name == "MultiplayerButton")
-            {
-                scene = "Multiplayer Menu";
-                quit = true;
-            }*/
-            else if(pressed_button->object_info->name == "SettingsButton")
-            {
-                scene = "Settings Menu";
-                quit = true;
-            }
-            else if(pressed_button->object_info->name == "QuitButton")
-            {
-                scene = "Escape";
-                quit = true;
+                if(pressed_button->object_info->name == "NewGameButton")
+                {
+                    scene = "New Game Menu";
+                    quit = true;
+                }
+                /*else if(pressed_button->object_info->name == "LoadGameButton")
+                {
+                    scene = "Load Game Menu";
+                    quit = true;
+                }*/
+                /*else if(pressed_button->object_info->name == "MultiplayerButton")
+                {
+                    scene = "Multiplayer Menu";
+                    quit = true;
+                }*/
+                else if(pressed_button->object_info->name == "SettingsButton")
+                {
+                    scene = "Settings Menu";
+                    quit = true;
+                }
+                else if(pressed_button->object_info->name == "QuitButton")
+                {
+                    scene = "Escape";
+                    quit = true;
+                }
             }
         }
     }
@@ -67,79 +70,82 @@ void checkSettingsMenu()
     Button *pressed_button = NULL;
     while(!quit)
     {
-        pressed_button = userInput();
-        if(pressed_button != NULL)
+        if(SDL_PollEvent(&event))
         {
-            /*else if(pressed_button->object_info->name == "ScreenResolutionButton")
+            pressed_button = userInput();
+            if(pressed_button != NULL)
             {
+                /*else if(pressed_button->object_info->name == "ScreenResolutionButton")
+                {
+                    
+                }*/
+                if(pressed_button->object_info->name == "FullscreenModeButton")
+                {
+                    if(FULLSCREEN_MODE == false)
+                    {
+                        FULLSCREEN_MODE = true;
+                        SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN || SDL_WINDOW_BORDERLESS);
+                    }
+                    else
+                    {
+                        FULLSCREEN_MODE = false;
+                        SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN);
+                    }
+                    pressed_button->object_info->text_info->text = "> " + to_string(FULLSCREEN_MODE);
+                    updateGUIObject(pressed_button->object_info);
+                    quit = true;
+                }
+                else if(pressed_button->object_info->name == "VSyncButton")
+                {
+                    if(VSYNC == false)
+                    {
+                        VSYNC = true;
+                        SDL_DestroyRenderer(renderer);
+                        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED || SDL_RENDERER_PRESENTVSYNC);
+                    }
+                    else
+                    {
+                        VSYNC = false;
+                        SDL_DestroyRenderer(renderer);
+                        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+                    }
+                    if(FULLSCREEN_MODE)
+                    {
+                        SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN);
+                        SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN || SDL_WINDOW_BORDERLESS);
+                    }
                 
-            }*/
-            if(pressed_button->object_info->name == "FullscreenModeButton")
-            {
-                if(FULLSCREEN_MODE == false)
-                {
-                    FULLSCREEN_MODE = true;
-                    SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN || SDL_WINDOW_BORDERLESS);
+                    pressed_button->object_info->text_info->text = "> " + to_string(VSYNC);
+                    updateGUIObject(pressed_button->object_info);
+                    quit = true;
                 }
-                else
+                /*else if(pressed_button->object_info->name == "MasterVolumeButton")
                 {
-                    FULLSCREEN_MODE = false;
-                    SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN);
-                }
-                pressed_button->object_info->text_info->text = "> " + to_string(FULLSCREEN_MODE);
-                updateGUIObject(pressed_button->object_info);
-                quit = true;
-            }
-            else if(pressed_button->object_info->name == "VSyncButton")
-            {
-                if(VSYNC == false)
+                    
+                }*/
+                /*else if(pressed_button->object_info->name == "MusicVolumeButton")
                 {
-                    VSYNC = true;
-                    SDL_DestroyRenderer(renderer);
-                    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED || SDL_RENDERER_PRESENTVSYNC);
-                }
-                else
+                    
+                }*/
+                else if(pressed_button->object_info->name == "ApplyButton")
                 {
-                    VSYNC = false;
-                    SDL_DestroyRenderer(renderer);
-                    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+                    ofstream settings("data/settings.txt", ios::out);
+                    settings.clear();
+                    settings
+                    << "SCREEN_WIDTH " + to_string(SCREEN_WIDTH) << endl
+                    << "SCREEN_HEIGHT " + to_string(SCREEN_HEIGHT) << endl
+                    << "VSYNC " + to_string(VSYNC) << endl
+                    << "MASTER_VOLUME " + to_string(MASTER_VOLUME) << endl
+                    << "MUSIC_VOLUME " + to_string(MUSIC_VOLUME) << endl
+                    << "FULLSCREEN_MODE " + to_string(FULLSCREEN_MODE);
+                    settings.close();
                 }
-                if(FULLSCREEN_MODE)
+                else if(pressed_button->object_info->name == "ReturnButton")
                 {
-                    SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN);
-                    SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN || SDL_WINDOW_BORDERLESS);
+                    initSettings();
+                    scene = "Main Menu";
+                    quit = true;
                 }
-                
-                pressed_button->object_info->text_info->text = "> " + to_string(VSYNC);
-                updateGUIObject(pressed_button->object_info);
-                quit = true;
-            }
-            /*else if(pressed_button->object_info->name == "MasterVolumeButton")
-            {
-                
-            }*/
-            /*else if(pressed_button->object_info->name == "MusicVolumeButton")
-            {
-                
-            }*/
-            else if(pressed_button->object_info->name == "ApplyButton")
-            {
-                ofstream settings("data/settings.txt", ios::out);
-                settings.clear();
-                settings
-                << "SCREEN_WIDTH " + to_string(SCREEN_WIDTH) << endl
-                << "SCREEN_HEIGHT " + to_string(SCREEN_HEIGHT) << endl
-                << "VSYNC " + to_string(VSYNC) << endl
-                << "MASTER_VOLUME " + to_string(MASTER_VOLUME) << endl
-                << "MUSIC_VOLUME " + to_string(MUSIC_VOLUME) << endl
-                << "FULLSCREEN_MODE " + to_string(FULLSCREEN_MODE);
-                settings.close();
-            }
-            else if(pressed_button->object_info->name == "ReturnButton")
-            {
-                initSettings();
-                scene = "Main Menu";
-                quit = true;
             }
         }
     }
@@ -173,28 +179,31 @@ void checkNewGameMenu()
     Button *pressed_button = NULL;
     while(!quit)
     {
-        pressed_button = userInput();
-        if(pressed_button != NULL)
+        if(SDL_PollEvent(&event))
         {
-            /*else if(pressed_button->object_info->name == "Mode1")
+            pressed_button = userInput();
+            if(pressed_button != NULL)
             {
-                scene = "";
-                quit = true;
-            }*/
-            /*else if(pressed_button->object_info->name == "Mode2")
-            {
-                scene = "";
-                quit = true;
-            }*/
-            /*else if(pressed_button->object_info->name == "Mode3")
-            {
-                scene = "";
-                quit = true;
-            }*/
-            if(pressed_button->object_info->name == "ReturnButton")
-            {
-                scene = "Main Menu";
-                quit = true;
+                if(pressed_button->object_info->name == "Mode1")
+                {
+                    scene = "Game";
+                    quit = true;
+                }
+                /*else if(pressed_button->object_info->name == "Mode2")
+                {
+                    scene = "";
+                    quit = true;
+                }*/
+                /*else if(pressed_button->object_info->name == "Mode3")
+                {
+                    scene = "";
+                    quit = true;
+                }*/
+                else if(pressed_button->object_info->name == "ReturnButton")
+                {
+                    scene = "Main Menu";
+                    quit = true;
+                }
             }
         }
     }
@@ -217,7 +226,123 @@ void loadNewGameMenu()
     checkNewGameMenu();
 }
 
-void checkGame()
+void checkGame(WallList *wList, Player *player)
+{
+    Button *pressed_button = NULL;
+    while(!quit)
+    {
+        if(SDL_PollEvent(&event))
+        {
+            if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
+            {
+                if((event.button.x >= 640-40 && event.button.x < 640+40) &&
+                    (event.button.y >= 360-40-80 && event.button.y < 360-40))
+                {
+                    Wall *wall = getWall(wList, player->x, player->y-1);
+                    if(wall)
+                    {
+                        deleteWall(wList, wall->id);
+                        renderWalls(wList, player->x, player->y);
+                    }
+                    wall = nullptr;
+                }
+                else if((event.button.x >= 640-40-80 && event.button.x < 640-40) &&
+                    (event.button.y >= 360-40 && event.button.y < 360+40))
+                {
+                    Wall *wall = getWall(wList, player->x-1, player->y);
+                    if(wall)
+                    {
+                        deleteWall(wList, wall->id);
+                        renderWalls(wList, player->x, player->y);
+                    }
+                    wall = nullptr;
+                }
+                else if((event.button.x >= 640-40 && event.button.x < 640+40) &&
+                    (event.button.y >= 360+40 && event.button.y < 360+40+80))
+                {
+                    Wall *wall = getWall(wList, player->x, player->y+1);
+                    if(wall)
+                    {
+                        deleteWall(wList, wall->id);
+                        renderWalls(wList, player->x, player->y);
+                    }
+                    wall = nullptr;
+                }
+                else if((event.button.x >= 640+40 && event.button.x < 640+40+80) &&
+                    (event.button.y >= 360-40 && event.button.y < 360+40))
+                {
+                    Wall *wall = getWall(wList, player->x+1, player->y);
+                    if(wall)
+                    {
+                        deleteWall(wList, wall->id);
+                        renderWalls(wList, player->x, player->y);
+                    }
+                    wall = nullptr;
+                }
+                
+            }
+            if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_w)
+            {
+                if(!getWall(wList, player->x, player->y-1)) renderWalls(wList, player->x, --player->y);
+            }
+            else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_a)
+            {
+                if(!getWall(wList, player->x-1, player->y)) renderWalls(wList, --player->x, player->y);
+            }
+            else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_s)
+            {
+                if(!getWall(wList, player->x, player->y+1)) renderWalls(wList, player->x, ++player->y);
+            }
+            else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_d)
+            {
+                if(!getWall(wList, player->x+1, player->y)) renderWalls(wList, ++player->x, player->y);
+            }
+        }
+        pressed_button = userInput();
+        if(pressed_button != NULL)
+        {
+            // if(pressed_button->object_info->name == "ReturnButton")
+            // {
+            //     scene = "Main Menu";
+            //     quit = true;
+            // }
+        }
+    }
+}
+
+void loadGame()
+{
+    WallList wallList;
+    // Загрузка текстуры камня
+    loadTexture("rock.png");
+    loadTexture("rockD.png");
+    loadTexture("rockDR.png");
+    loadTexture("rockL.png");
+    loadTexture("rockLD.png");
+    loadTexture("rockLDR.png");
+    loadTexture("rockLR.png");
+    loadTexture("rockR.png");
+    loadTexture("rockU.png");
+    loadTexture("rockUD.png");
+    loadTexture("rockUDR.png");
+    loadTexture("rockUL.png");
+    loadTexture("rockULD.png");
+    loadTexture("rockULDR.png");
+    loadTexture("rockULR.png");
+    loadTexture("rockUR.png");
+    // Загрузка золота
+    loadTexture("gold.png");
+    //Загрузка алмазов
+    loadTexture("diamond.png");
+    
+    Player player = initMap(&wallList);
+    updateFrame();
+
+    renderWalls(&wallList, player.x, player.y);
+    checkGame(&wallList, &player);
+}
+
+void checkPause()
 {
     Button *pressed_button = NULL;
     while(!quit)
@@ -225,15 +350,17 @@ void checkGame()
         pressed_button = userInput();
         if(pressed_button != NULL)
         {
-            if(pressed_button->object_info->name == "ReturnButton")
-            {
-                scene = "Main Menu";
-                quit = true;
-            }
+            // if(pressed_button->object_info->name == "ReturnButton")
+            // {
+            //     scene = "Main Menu";
+            //     quit = true;
+            // }
         }
     }
 }
 
-void loadGame()
+void loadPause()
 {
+    updateFrame();
+    checkPause();
 }

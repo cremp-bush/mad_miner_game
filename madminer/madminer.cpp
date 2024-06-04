@@ -23,7 +23,8 @@ int main(int argc, char* argv[])
             if(scene == "Main Menu") loadMainMenu();
             else if(scene == "New Game Menu") loadNewGameMenu();
             else if(scene == "Settings Menu") loadSettingsMenu();
-            // else if(scene == "Game") loadGame();
+            else if(scene == "Game") loadGame();
+            else if(scene == "Pause") loadPause();
             if(scene != "Escape")
             {
                 clearGUIObjects();

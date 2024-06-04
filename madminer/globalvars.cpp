@@ -6,6 +6,7 @@
 GUIObjectList guiObjectList;
 ButtonList buttonList;
 GameObjectList gameObjectList;
+TextureList textureList;
 SDL_Window *window = nullptr;
 SDL_Renderer *renderer = nullptr;
 SDL_Event event = {0};

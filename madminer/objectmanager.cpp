@@ -159,6 +159,38 @@ void deleteGUIObject(string name)
         /* Поиск объекта по имени */
         GUIObject *e = guiObjectList.head;
         GUIObject *tmp1 = e;
+        if(e->name == name)
+        {
+            guiObjectList.head = e->next;
+            
+            Button *p = buttonList.head;
+            Button *tmp2 = p;
+            if(p->object_info == e)
+            {
+                buttonList.head = p->next;
+                delete p;
+                p = nullptr;
+            }
+            else
+            {
+                /* Поиск объекта в структуре кнопок */
+                while(p->object_info != e && p != NULL)
+                {
+                    tmp2 = p;
+                    p = p->next;
+                }
+                /* Удаление кнопки */
+                if(p != NULL)
+                {
+                    if(p == buttonList.head) buttonList.head = NULL;
+                    tmp2->next = p->next;
+                    delete p;
+                    p = nullptr;
+                }
+            }
+            delete e;
+            e = nullptr;
+        }
         while(e->name != name && e != NULL)
         {
             tmp1 = e;
@@ -293,4 +325,115 @@ void updateGUIObject(GUIObject *guiObject)
     if(guiObject->text_info->allign == "left");
     else if(guiObject->text_info->allign == "center") guiObject->rect.x -= guiObject->rect.w/2;
     else if(guiObject->text_info->allign == "right") guiObject->rect.x -= guiObject->rect.w;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Создание новой стены */
+void createWall(WallList *wList, int x, int y, int type)
+{
+    Wall *new_wall = new Wall;
+    
+    new_wall->x = x;
+    new_wall->y = y;
+    new_wall->type = type;
+    new_wall->id = wList->count;
+    
+    if(wList->head == NULL) wList->head = new_wall;
+    else
+    {
+        Wall *r = wList->head;
+        while(r->next != NULL) r = r->next;
+        r->next = new_wall;
+        r = nullptr;
+    }
+    wList->count++;
+}
+/* Удалить стену */
+void deleteWall(WallList *wList, unsigned short id)
+{
+    if(wList->count == 0) cout << "[deleteWall] Пустой стек!" << endl;
+    else
+    {
+        Wall *r = wList->head;
+        Wall *tmp = r;
+        while(r != NULL && r->id != id)
+        {
+            tmp = r;
+            r = r->next;
+        }
+        if(r == NULL) cout << "[deleteWall] Стена не найдена!" << endl;
+        else
+        {
+            if(wList->head->id == id)
+                wList->head = wList->head->next;
+            else
+                tmp->next = r->next;
+            delete r;
+            wList->count--;
+        }
+        tmp = nullptr;
+        r = nullptr;
+    }
+}
+/* Очистка стен */
+void clearWalls(WallList *wList)
+{
+    if(wList->count == 0) cout << "[clearWalls] Пустой стек!" << endl;
+    else
+    {
+        Wall *r = wList->head;
+        Wall *tmp;
+        while(r != NULL)
+        {
+            tmp = r->next;
+            delete r;
+            r = nullptr;
+            r = tmp;
+        }
+        tmp = nullptr;
+        r = nullptr;
+        wList->count = 0;
+    }
+}
+/* Обновление стены */
+void updateWall(WallList *wList, unsigned short id)
+{
+    if(wList->count == 0) cout << "[updateWall] Пустой стек!" << endl;
+    else
+    {
+        Wall *r = wList->head;
+        Wall *tmp = r;
+        while(r != NULL && r->id != id)
+        {
+            tmp = r;
+            r = r->next;
+        }
+        if(r != NULL) cout << "[updateWall] Стена не найдена!" << endl;
+        else
+        {
+            if(wList->head->id == id)
+                wList->head = wList->head->next;
+            else
+                tmp->next = r->next;
+            delete r;
+            wList->count--;
+        }
+        tmp = nullptr;
+        r = nullptr;
+    }
+}
+/* Получение стены */
+Wall* getWall(WallList *wList, int x, int y)
+{
+    Wall *get = NULL;
+    if(wList->count == 0) cout << "[getWall] Пустой стек!" << endl;
+    else
+    {
+        Wall *r = wList->head;
+        while(r != NULL && (r->x != x || r->y != y)) r = r->next;
+        if(r == NULL) /*cout << "[getWall] Стена не найдена!" << endl*/;
+        else get = r;
+        r = nullptr;
+    }
+    return get;
 }

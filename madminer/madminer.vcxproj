@@ -247,11 +247,12 @@
     <ClInclude Include="structs.h" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="data\Saves\" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="data\Fonts\font.ttf" />
     <Content Include="data\Music\main_title.ogg" />
+    <Content Include="data\Saves\gaslayer.txt" />
+    <Content Include="data\Saves\groundlayer.txt" />
+    <Content Include="data\Saves\objectlayer.txt" />
+    <Content Include="data\Saves\walllayer.txt" />
     <Content Include="data\settings.txt" />
     <Content Include="data\Textures\diamond.png" />
     <Content Include="data\Textures\diamond_rock.png" />
