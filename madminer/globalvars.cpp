@@ -5,7 +5,6 @@
 /* Инциализация глобальных переменных */
 GUIObjectList guiObjectList;
 ButtonList buttonList;
-GameObjectList gameObjectList;
 TextureList textureList;
 SDL_Window *window = nullptr;
 SDL_Renderer *renderer = nullptr;
@@ -14,6 +13,11 @@ string scene = "Main Menu";
 Button *select = NULL;
 bool quit = false;
 Mix_Music *background_music = NULL;
+
+int map_width;
+int map_height;
+int difficulty;
+int score = 0;
 
 short SCREEN_WIDTH = 1280;
 short SCREEN_HEIGHT = 720;

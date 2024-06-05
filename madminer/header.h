@@ -18,6 +18,11 @@ extern bool quit;
 extern Mix_Music *background_music;
 const SDL_Color black = {0,0,0};
 
+extern int map_width;
+extern int map_height;
+extern int difficulty;
+extern int score;
+
 extern short SCREEN_WIDTH;
 extern short SCREEN_HEIGHT;
 extern bool VSYNC;
@@ -40,7 +45,7 @@ void deleteGUIObject(string name);
 
 void clearGUIObjects();
 
-GUIObject getGUIObject(string name);
+GUIObject* getGUIObject(string name);
 
 // void setGUIObject(GUIObject object, string name);
 
@@ -52,6 +57,12 @@ void clearWalls(WallList *wList);
 void updateWall(WallList *wList, unsigned short id);
 Wall* getWall(WallList *wList, int x, int y);
 
+void createGameObject(GameObjectList *gameObjectList, int x, int y, int type);
+void deleteGameObject(GameObjectList *gameObjectList, unsigned short id);
+void clearGameObjects(GameObjectList *gameObjectList);
+void updateGameObject(GameObjectList *gameObjectList, unsigned short id);
+GameObject* getGameObject(GameObjectList *gameObjectList, int x, int y);
+
 /* init.cpp */
 bool initSdl();
 
@@ -59,7 +70,7 @@ void stopSdl();
 
 void initSettings();
 
-Player initMap(WallList *wallList);
+void initMap(Player *player, int ***map);
 
 /* textgenerator.cpp */
 SDL_Texture* textGenerator(TextInfo text_info);
@@ -79,16 +90,19 @@ void loadSettingsMenu();
 void checkNewGameMenu();
 void loadNewGameMenu();
 
-void checkGame();
+void checkGame(Player *player, int ***map);
 void loadGame();
 
 void checkPause();
 void loadPause();
 
 /* SDL_render_h_.cpp */
-void renderWalls(WallList *wList, int x, int y);
+void renderWalls(Player *player, int ***map);
+void renderGameObjects(Player *player, int ***map);
 void renderGUIObjects();
+void renderInterface(Player *player);
 
+void updateFrame(Player *player, int ***map);
 void updateFrame();
 
 /* userinput.cpp */

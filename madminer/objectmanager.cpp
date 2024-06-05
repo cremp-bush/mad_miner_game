@@ -258,10 +258,10 @@ void clearGUIObjects()
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Получить GUI объект */
-GUIObject getGUIObject(string name)
+GUIObject* getGUIObject(string name)
 {
     GUIObject *get = NULL;
-    if(gameObjectList.count == 0) cout << "[getGUIObject] Пустой стек!" << endl;
+    if(guiObjectList.count == 0) cout << "[getGUIObject] Пустой стек!" << endl;
     else
     {
         GUIObject *e = guiObjectList.head;
@@ -269,7 +269,7 @@ GUIObject getGUIObject(string name)
         if(e == NULL) cout << "[getGUIObject] Объект не найден!" << endl;
         else get = e;
     }
-    return *get;
+    return get;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Заменить GUI объект */
@@ -312,19 +312,25 @@ GUIObject getGUIObject(string name)
 void updateGUIObject(GUIObject *guiObject)
 {
     /* Возвращаем на место смещение */
-    if(guiObject->text_info->allign == "left");
-    else if(guiObject->text_info->allign == "center") guiObject->rect.x += guiObject->rect.w/2;
-    else if(guiObject->text_info->allign == "right") guiObject->rect.x += guiObject->rect.w;
+    if(guiObject->text_info)
+    {
+        if(guiObject->text_info->allign == "left");
+        else if(guiObject->text_info->allign == "center") guiObject->rect.x += guiObject->rect.w/2;
+        else if(guiObject->text_info->allign == "right") guiObject->rect.x += guiObject->rect.w;
+    }
 
     /* Заменяем текстуру */
     SDL_DestroyTexture(guiObject->texture);
     guiObject->texture = textGenerator(*guiObject->text_info);
 
     /* Смещаем снова */
-    SDL_QueryTexture(guiObject->texture, nullptr, nullptr, &guiObject->rect.w, &guiObject->rect.h);
-    if(guiObject->text_info->allign == "left");
-    else if(guiObject->text_info->allign == "center") guiObject->rect.x -= guiObject->rect.w/2;
-    else if(guiObject->text_info->allign == "right") guiObject->rect.x -= guiObject->rect.w;
+    if(guiObject->text_info)
+    {
+        SDL_QueryTexture(guiObject->texture, nullptr, nullptr, &guiObject->rect.w, &guiObject->rect.h);
+        if(guiObject->text_info->allign == "left");
+        else if(guiObject->text_info->allign == "center") guiObject->rect.x -= guiObject->rect.w/2;
+        else if(guiObject->text_info->allign == "right") guiObject->rect.x -= guiObject->rect.w;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -432,6 +438,116 @@ Wall* getWall(WallList *wList, int x, int y)
         Wall *r = wList->head;
         while(r != NULL && (r->x != x || r->y != y)) r = r->next;
         if(r == NULL) /*cout << "[getWall] Стена не найдена!" << endl*/;
+        else get = r;
+        r = nullptr;
+    }
+    return get;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/* Создание нового объекта */
+void createGameObject(GameObjectList *gameObjectList, int x, int y, int type)
+{
+    GameObject *new_object = new GameObject;
+    
+    new_object->x = x;
+    new_object->y = y;
+    new_object->type = type;
+    new_object->id = gameObjectList->count;
+    
+    if(gameObjectList->head == NULL) gameObjectList->head = new_object;
+    else
+    {
+        GameObject *r = gameObjectList->head;
+        while(r->next != NULL) r = r->next;
+        r->next = new_object;
+        r = nullptr;
+    }
+    gameObjectList->count++;
+}
+/* Удалить объект */
+void deleteGameObject(GameObjectList *gameObjectList, unsigned short id)
+{
+    if(gameObjectList->count == 0) cout << "[deleteGameObject] Пустой стек!" << endl;
+    else
+    {
+        GameObject *r = gameObjectList->head;
+        GameObject *tmp = r;
+        while(r != NULL && r->id != id)
+        {
+            tmp = r;
+            r = r->next;
+        }
+        if(r == NULL) cout << "[deleteGameObject] Объект не найден!" << endl;
+        else
+        {
+            if(gameObjectList->head->id == id)
+                gameObjectList->head = gameObjectList->head->next;
+            else
+                tmp->next = r->next;
+            delete r;
+            gameObjectList->count--;
+        }
+        tmp = nullptr;
+        r = nullptr;
+    }
+}
+/* Очистка объектов */
+void clearGameObjects(GameObjectList *gameObjectList)
+{
+    if(gameObjectList->count == 0) cout << "[clearGameobjects] Пустой стек!" << endl;
+    else
+    {
+        GameObject *r = gameObjectList->head;
+        GameObject *tmp;
+        while(r != NULL)
+        {
+            tmp = r->next;
+            delete r;
+            r = nullptr;
+            r = tmp;
+        }
+        tmp = nullptr;
+        r = nullptr;
+        gameObjectList->count = 0;
+    }
+}
+/* Обновление объекта */
+void updateGameObject(GameObjectList *gameObjectList, unsigned short id)
+{
+    if(gameObjectList->count == 0) cout << "[updateGameObject] Пустой стек!" << endl;
+    else
+    {
+        GameObject *r = gameObjectList->head;
+        GameObject *tmp = r;
+        while(r != NULL && r->id != id)
+        {
+            tmp = r;
+            r = r->next;
+        }
+        if(r != NULL) cout << "[updateGameObject] Объект не найден!" << endl;
+        else
+        {
+            if(gameObjectList->head->id == id)
+                gameObjectList->head = gameObjectList->head->next;
+            else
+                tmp->next = r->next;
+            delete r;
+            gameObjectList->count--;
+        }
+        tmp = nullptr;
+        r = nullptr;
+    }
+}
+/* Получение объекта */
+GameObject* getGameObject(GameObjectList *gameObjectList, int x, int y)
+{
+    GameObject *get = NULL;
+    if(gameObjectList->count == 0) cout << "[getGameObject] Пустой стек!" << endl;
+    else
+    {
+        GameObject *r = gameObjectList->head;
+        while(r != NULL && (r->x != x || r->y != y)) r = r->next;
+        if(r == NULL) /*cout << "[getGameObject] Объект не найден!" << endl*/;
         else get = r;
         r = nullptr;
     }

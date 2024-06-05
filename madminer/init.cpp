@@ -106,7 +106,7 @@ void initSettings()
         if(FULLSCREEN_MODE)
         {
             SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN);
-            SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN || SDL_WINDOW_BORDERLESS);
+            SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN || SDL_WINDOW_FULLSCREEN_DESKTOP);
         }
     }
     Mix_MasterVolume(MIX_MAX_VOLUME/100.0 * MASTER_VOLUME);
@@ -138,24 +138,13 @@ bool intersection(SDL_Rect *rooms, int i)
     return intersection;
 }
 
-Player initMap(WallList *wallList)
+void initMap(Player *player, int ***map)
 {
-    Player player;
-    
-    int map_width = 150;
-    int map_height = 50;
     int map_layers = 4;
     int room_minW = 3;
     int room_maxW = 4;
     int room_minH = 2;
     int room_maxH = 6;
-    int ***map = new int**[map_width]{0};
-    for(int i = 0; i < map_width; i++)
-    {
-        map[i] = new int*[map_height]{0};
-        for(int j = 0; j < map_height; j++)
-            map[i][j] = new int[map_layers]{0};
-    }
 
     int room_x, room_y, room_width, room_height, room_count;
     
@@ -167,6 +156,130 @@ Player initMap(WallList *wallList)
     srand(time(NULL));
     
     room_count = map_width*map_height/(map_width+map_height);
+
+    /* Массив пространств золота */
+    SDL_Rect *gold = new SDL_Rect[room_count*2];
+    
+    for(int i = 0; i < room_count*2; i++)
+    {
+        room_x = rand()%(map_width-1-1)+1;
+        room_y = rand()%(map_width-1-1)+1;
+        room_width = rand()%(1 - 3) + 1;
+        room_height = rand()%(1 - 2) + 1;
+
+        if(room_x + room_width >= map_width)
+        {
+            i--;
+            continue;
+        }
+        if(room_y + room_height >= map_height)
+        {
+            i--;
+            continue;
+        }
+        gold[i] = {room_x, room_y, room_width, room_height};
+    }
+
+    /* Создание пространств золота */
+    for(int y = 0; y < map_height; y++)
+    {
+        for(int x = 0; x < map_width; x++)
+        {
+            bool room = false;
+            for(int i = 0; i < room_count*2; i++)
+            {
+                if((x >= gold[i].x && x < gold[i].x+gold[i].w) && (y >= gold[i].y && y < gold[i].y+gold[i].h))
+                {
+                    map[x][y][0] = 2;
+                    
+                    room = true;
+                    break;
+                }
+            }
+        }
+    }
+    /* Массив пространств алмазов */
+    SDL_Rect *diamond = new SDL_Rect[room_count*2];
+    
+    for(int i = 0; i < room_count*2; i++)
+    {
+        room_x = rand()%(map_width-1-1)+1;
+        room_y = rand()%(map_width-1-1)+1;
+        room_width = rand()%(1 - 3) + 1;
+        room_height = rand()%(1 - 2) + 1;
+
+        if(room_x + room_width >= map_width)
+        {
+            i--;
+            continue;
+        }
+        if(room_y + room_height >= map_height)
+        {
+            i--;
+            continue;
+        }
+        diamond[i] = {room_x, room_y, room_width, room_height};
+    }
+
+    /* Создание пространств алмазов */
+    for(int y = 0; y < map_height; y++)
+    {
+        for(int x = 0; x < map_width; x++)
+        {
+            bool room = false;
+            for(int i = 0; i < room_count*2; i++)
+            {
+                if((x >= diamond[i].x && x < diamond[i].x+diamond[i].w) && (y >= diamond[i].y && y < diamond[i].y+diamond[i].h))
+                {
+                    map[x][y][0] = 3;
+                    
+                    room = true;
+                    break;
+                }
+            }
+        }
+    }
+    /* Массив пространств изумрудов */
+    SDL_Rect *emerald = new SDL_Rect[room_count*2];
+    
+    for(int i = 0; i < room_count*2; i++)
+    {
+        room_x = rand()%(map_width-1-1)+1;
+        room_y = rand()%(map_width-1-1)+1;
+        room_width = rand()%(1 - 3) + 1;
+        room_height = rand()%(1 - 2) + 1;
+
+        if(room_x + room_width >= map_width)
+        {
+            i--;
+            continue;
+        }
+        if(room_y + room_height >= map_height)
+        {
+            i--;
+            continue;
+        }
+        emerald[i] = {room_x, room_y, room_width, room_height};
+    }
+
+    /* Создание пространств изумрудов */
+    for(int y = 0; y < map_height; y++)
+    {
+        for(int x = 0; x < map_width; x++)
+        {
+            bool room = false;
+            for(int i = 0; i < room_count*2; i++)
+            {
+                if((x >= emerald[i].x && x < emerald[i].x+emerald[i].w) && (y >= emerald[i].y && y < emerald[i].y+emerald[i].h))
+                {
+                    map[x][y][0] = 4;
+                    
+                    room = true;
+                    break;
+                }
+            }
+        }
+    }
     /* Массив пустых пространств */
     SDL_Rect *rooms = new SDL_Rect[room_count];
     
@@ -211,61 +324,10 @@ Player initMap(WallList *wallList)
             }
             if(!room)
             {
-                map[x][y][0] = 1;
+                if(map[x][y][0] == 0) map[x][y][0] = 1;
             }
         }
     }
-
-    /* Массив пространств руд */
-    SDL_Rect *gold = new SDL_Rect[room_count*2];
-    
-    for(int i = 0; i < room_count*2; i++)
-    {
-            room_x = rand()%(map_width-1-1)+1;
-            room_y = rand()%(map_width-1-1)+1;
-            room_width = rand()%(1 - 3) + 1;
-            room_height = rand()%(1 - 2) + 1;
-
-            if(room_x + room_width >= map_width)
-            {
-                i--;
-                continue;
-            }
-            if(room_y + room_height >= map_height)
-            {
-                i--;
-                continue;
-            }
-            gold[i] = {room_x, room_y, room_width, room_height};
-    }
-
-    /* Создание пространств руд */
-    for(int y = 0; y < map_height; y++)
-    {
-        for(int x = 0; x < map_width; x++)
-        {
-            bool room = false;
-            for(int i = 0; i < room_count*2; i++)
-            {
-                if((x >= gold[i].x && x < gold[i].x+gold[i].w) && (y >= gold[i].y && y < gold[i].y+gold[i].h))
-                {
-                    map[x][y][0] = 2;
-                    
-                    room = true;
-                    break;
-                }
-            }
-        }
-    }
-    /*/* Вывод в консоль для отладки #1#
-    for(int n = 0; n < map_height; n++)
-    {
-        for(int m = 0; m < map_width; m++)
-            cout << map[m][n][0];
-        cout << endl;
-    }
-    cout << endl;*/
-    
     /* Массив пространств которые имеют корридоры */
     SDL_Rect *corridor = new SDL_Rect[room_count];
     int corridor_count = 0;
@@ -330,8 +392,11 @@ Player initMap(WallList *wallList)
         }
     }
 
-    /* Размещение лифта и игрока */
-    // map[center.x][center.y][0] = 5;
+    /* Размещение лифта и игрока и генератора */
+    map[center.x][center.y][0] = 5;
+    map[center.x][center.y][1] = 0;
+    map[center.x][center.y+1][1] = 0;
+    map[center.x+1][center.y][1] = 5;
 
     delete[] rooms;
     delete[] gold;
@@ -371,23 +436,28 @@ Player initMap(WallList *wallList)
     walllayer.close();
     objectlayer.close();
     gaslayer.close();
-    /* Запись стен в структуру */
-    for(int n = 0; n < map_height; n++)
-        for(int m = 0; m < map_width; m++)
-            if(map[m][n][0]) createWall(wallList, m, n, map[m][n][0]);
+    // /* Запись стен в структуру */
+    // for(int n = 0; n < map_height; n++)
+    //     for(int m = 0; m < map_width; m++)
+    //         if(map[m][n][0]) createWall(wallList, m, n, map[m][n][0]);
+    // /* Запись объектов в структуру */
+    // for(int n = 0; n < map_height; n++)
+    //     for(int m = 0; m < map_width; m++)
+    //         if(map[m][n][1]) createGameObject(gameObjectList, m, n, map[m][n][1]);
 
     /* Удаление карты */
-    //Удаление третьего измерения
-    for(int i = 0; i < map_width; i++)
-        for(int j = 0; j < map_height; j++)
-            delete [] map[i][j];
-    //Удаление второго измерения
-    for(int i = 0; i < map_width; i++)
-        delete [] map[i];
-    //Удаление массива
-    delete [] map;
-    map = nullptr;
-    return {center.x, center.y, getTexture("rock.png"), 100};
+    // //Удаление третьего измерения
+    // for(int i = 0; i < map_width; i++)
+    //     for(int j = 0; j < map_height; j++)
+    //         delete [] map[i][j];
+    // //Удаление второго измерения
+    // for(int i = 0; i < map_width; i++)
+    //     delete [] map[i];
+    // //Удаление массива
+    // delete [] map;
+    // map = nullptr;
+    // return {center.x, center.y+1, getTexture("new_player.png"), 100};
+    *player = {center.x, center.y+1, getTexture("playerD.png")};
 }
 
 /* Загрузка игровых текстур */

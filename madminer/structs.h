@@ -77,17 +77,17 @@ struct GroundList
 /* Игровые объекты/предметы */
 struct GameObject
 {
-    string name;
-    SDL_Rect rect;
-    SDL_Texture *texture;
-    unsigned short id;
+    int x;
+    int y;
+    unsigned short type = 0;
+    unsigned long long id = 0;
     GameObject *next = NULL;
 };
 
 struct GameObjectList
 {
     GameObject *head = NULL;
-    unsigned short count = 0;
+    unsigned long long count = 0;
 };
 
 /* Игровые стены */
@@ -96,14 +96,14 @@ struct Wall
     int x;
     int y;
     unsigned short type = 0;
-    unsigned short id = 0;
+    unsigned long long id = 0;
     Wall *next = NULL;
 };
 
 struct WallList
 {
     Wall *head = NULL;
-    unsigned short count = 0;
+    unsigned long long count = 0;
 };
 
 /* Игровые газы */
@@ -128,5 +128,11 @@ struct Player
     int x;
     int y;
     Texture *texture;
-    int health = 100;
+    int health = 5;
+    int stamina = 55;
+    bool gas_mask = false;
+    int filter = 55;
+    int gold = 0;
+    int diamond = 0;
+    int emerald = 0;
 };

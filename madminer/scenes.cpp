@@ -45,6 +45,7 @@ void checkMainMenu()
                 }
             }
         }
+        SDL_Delay(1);
     }
 }
 /* Инициализация главного меню игры */
@@ -112,7 +113,7 @@ void checkSettingsMenu()
                     if(FULLSCREEN_MODE)
                     {
                         SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN);
-                        SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN || SDL_WINDOW_BORDERLESS);
+                        SDL_SetWindowFullscreen(window, SDL_WINDOW_SHOWN || SDL_WINDOW_FULLSCREEN_DESKTOP);
                     }
                 
                     pressed_button->object_info->text_info->text = "> " + to_string(VSYNC);
@@ -148,6 +149,7 @@ void checkSettingsMenu()
                 }
             }
         }
+        SDL_Delay(1);
     }
 }
 /* Инициализация Меню Настроек игры */
@@ -187,6 +189,8 @@ void checkNewGameMenu()
                 if(pressed_button->object_info->name == "Mode1")
                 {
                     scene = "Game";
+                    map_width = 100;
+                    map_height = 100;
                     quit = true;
                 }
                 /*else if(pressed_button->object_info->name == "Mode2")
@@ -206,6 +210,7 @@ void checkNewGameMenu()
                 }
             }
         }
+        SDL_Delay(1);
     }
 }
 /* Инициализация Меню Новой игры */
@@ -226,77 +231,165 @@ void loadNewGameMenu()
     checkNewGameMenu();
 }
 
-void checkGame(WallList *wList, Player *player)
+void checkGame(Player *player, int ***map)
 {
+    unsigned short cooldown = 0;
     Button *pressed_button = NULL;
+    
+    createGUIObject("Mine Selection", {0, 0, 0, 0}, getTexture("mine_selection.png")->texture);
+    GUIObject *mine_selection = getGUIObject("Mine Selection");
+    mine_selection->rect = {0,0,0,0};
+    
     while(!quit)
     {
+        
+        if(cooldown)
+            if(time(NULL)-5 >= cooldown) cooldown = 0;
         if(SDL_PollEvent(&event))
         {
+            /* Система копания */
             if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
             {
                 if((event.button.x >= 640-40 && event.button.x < 640+40) &&
                     (event.button.y >= 360-40-80 && event.button.y < 360-40))
                 {
-                    Wall *wall = getWall(wList, player->x, player->y-1);
-                    if(wall)
+                    if(map[player->x][player->y-1][0])
                     {
-                        deleteWall(wList, wall->id);
-                        renderWalls(wList, player->x, player->y);
+                        player->texture = getTexture("playerU.png");
+                        map[player->x][player->y-1][0] = 0;
+                        mine_selection->rect = {0,0,0,0};
+                        updateFrame(player, map);
                     }
-                    wall = nullptr;
                 }
                 else if((event.button.x >= 640-40-80 && event.button.x < 640-40) &&
                     (event.button.y >= 360-40 && event.button.y < 360+40))
                 {
-                    Wall *wall = getWall(wList, player->x-1, player->y);
-                    if(wall)
+                    if(map[player->x-1][player->y][0])
                     {
-                        deleteWall(wList, wall->id);
-                        renderWalls(wList, player->x, player->y);
+                        player->texture = getTexture("playerL.png");
+                        map[player->x-1][player->y][0] = 0;
+                        mine_selection->rect = {0,0,0,0};
+                        updateFrame(player, map);
                     }
-                    wall = nullptr;
                 }
                 else if((event.button.x >= 640-40 && event.button.x < 640+40) &&
                     (event.button.y >= 360+40 && event.button.y < 360+40+80))
                 {
-                    Wall *wall = getWall(wList, player->x, player->y+1);
-                    if(wall)
+                    if(map[player->x][player->y+1][0])
                     {
-                        deleteWall(wList, wall->id);
-                        renderWalls(wList, player->x, player->y);
+                        player->texture = getTexture("playerD.png");
+                        map[player->x][player->y+1][0] = 0;
+                        mine_selection->rect = {0,0,0,0};
+                        updateFrame(player, map);
                     }
-                    wall = nullptr;
                 }
                 else if((event.button.x >= 640+40 && event.button.x < 640+40+80) &&
                     (event.button.y >= 360-40 && event.button.y < 360+40))
                 {
-                    Wall *wall = getWall(wList, player->x+1, player->y);
-                    if(wall)
+                    if(map[player->x+1][player->y][0])
                     {
-                        deleteWall(wList, wall->id);
-                        renderWalls(wList, player->x, player->y);
+                        player->texture = getTexture("playerR.png");
+                        map[player->x+1][player->y][0] = 0;
+                        mine_selection->rect = {0,0,0,0};
+                        updateFrame(player, map);
                     }
-                    wall = nullptr;
                 }
                 
             }
             if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_w)
             {
-                if(!getWall(wList, player->x, player->y-1)) renderWalls(wList, player->x, --player->y);
+                if(!map[player->x][player->y-1][0])
+                {
+                    player->texture = getTexture("playerU.png");
+                    player->y--;
+                    updateFrame(player, map);
+                }
             }
             else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_a)
             {
-                if(!getWall(wList, player->x-1, player->y)) renderWalls(wList, --player->x, player->y);
+                if(!map[player->x-1][player->y][0])
+                {
+                    player->texture = getTexture("playerL.png");
+                    player->x--;
+                    updateFrame(player, map);
+                }
             }
             else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_s)
             {
-                if(!getWall(wList, player->x, player->y+1)) renderWalls(wList, player->x, ++player->y);
+                if(!map[player->x][player->y+1][0])
+                {
+                    player->texture = getTexture("playerD.png");
+                    player->y++;
+                    updateFrame(player, map);
+                }
             }
             else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_d)
             {
-                if(!getWall(wList, player->x+1, player->y)) renderWalls(wList, ++player->x, player->y);
+                if(!map[player->x+1][player->y][0])
+                {
+                    player->texture = getTexture("playerR.png");
+                    player->x++;
+                    updateFrame(player, map);
+                }
             }
+        //     /* Система выделения копания */
+        //     if((event.button.x >= 640-40 && event.button.x < 640+40) &&
+        //         (event.button.y >= 360-40-80 && event.button.y < 360-40))
+        //     {
+        //         if((event.button.x < mine_selection->rect.x || event.button.x >= mine_selection->rect.x+80) ||
+        //            event.button.y < mine_selection->rect.y || event.button.y >= mine_selection->rect.y+80)
+        //         {
+        //             if(map[player->x][player->y-1][0])
+        //             {
+        //                 mine_selection->rect = {640-40, 360-40-80, 80, 80};
+        //                 updateFrame(player, map);
+        //             }
+        //         }
+        //     }
+        //     else if((event.button.x >= 640-40-80 && event.button.x < 640-40) &&
+        //             (event.button.y >= 360-40 && event.button.y < 360+40))
+        //     {
+        //         if((event.button.x < mine_selection->rect.x || event.button.x >= mine_selection->rect.x+80) ||
+        //            event.button.y < mine_selection->rect.y || event.button.y >= mine_selection->rect.y+80)
+        //         {
+        //             if(map[player->x-1][player->y][0])
+        //             {
+        //                 mine_selection->rect = {640-40-80, 360-40, 80, 80};
+        //                 updateFrame(player, map);
+        //             }
+        //         }
+        //     }
+        //     else if((event.button.x >= 640-40 && event.button.x < 640+40) &&
+        //             (event.button.y >= 360+40 && event.button.y < 360+40+80))
+        //     {
+        //         if((event.button.x < mine_selection->rect.x || event.button.x >= mine_selection->rect.x+80) ||
+        //            event.button.y < mine_selection->rect.y || event.button.y >= mine_selection->rect.y+80)
+        //         {
+        //             if(map[player->x][player->y+1][0])
+        //             {
+        //                 mine_selection->rect = {640-40, 360+40, 80, 80};
+        //                 updateFrame(player, map);
+        //             }
+        //         }
+        //     }
+        //     else if((event.button.x >= 640+40 && event.button.x < 640+40+80) &&
+        //             (event.button.y >= 360-40 && event.button.y < 360+40))
+        //     {
+        //         if((event.button.x < mine_selection->rect.x || event.button.x >= mine_selection->rect.x+80) ||
+        //            event.button.y < mine_selection->rect.y || event.button.y >= mine_selection->rect.y+80)
+        //         {
+        //             if(map[player->x+1][player->y][0])
+        //             {
+        //                 mine_selection->rect = {640+40, 360-40, 80, 80};
+        //                 updateFrame(player, map);
+        //             }
+        //         }
+        //     }
+        //     else if(mine_selection->rect.w != 0)
+        //     {
+        //         mine_selection->rect = {0,0,0,0};
+        //         updateFrame(player, map);
+        //     }
         }
         pressed_button = userInput();
         if(pressed_button != NULL)
@@ -307,12 +400,22 @@ void checkGame(WallList *wList, Player *player)
             //     quit = true;
             // }
         }
+        SDL_Delay(1);
     }
 }
 
 void loadGame()
 {
-    WallList wallList;
+    Player player;
+    int ***map = new int**[map_width]{0};
+    for(int i = 0; i < map_width; i++)
+    {
+        map[i] = new int*[map_height]{0};
+        for(int j = 0; j < map_height; j++)
+            map[i][j] = new int[2]{0};
+    }
+    // Загрузка текстуры земли
+    loadTexture("ground.png");
     // Загрузка текстуры камня
     loadTexture("rock.png");
     loadTexture("rockD.png");
@@ -330,16 +433,43 @@ void loadGame()
     loadTexture("rockULDR.png");
     loadTexture("rockULR.png");
     loadTexture("rockUR.png");
-    // Загрузка золота
+    // Загрузка лифта
+    loadTexture("elevator.png");
+    // Загрузка руд
     loadTexture("gold.png");
-    //Загрузка алмазов
     loadTexture("diamond.png");
+    loadTexture("emerald.png");
+    // Загрузка игрока
+    loadTexture("playerU.png");
+    loadTexture("playerL.png");
+    loadTexture("playerD.png");
+    loadTexture("playerR.png");
+    // Загрузка предметов
+    loadTexture("generator.png");
+    loadTexture("1.png");
+    loadTexture("2.png");
+    loadTexture("3.png");
+    // Загрузка выделения
+    loadTexture("mine_selection.png");
+    // Загрузка интерфейса
+    loadTexture("stamina_bar.png");
+    loadTexture("health_bar.png");
+    loadTexture("gold_ingot.png");
+    loadTexture("diamond_ingot.png");
+    loadTexture("emerald_ingot.png");
+    createGUIObject("Gold Counter", {110, 80, 64, 64}, textGenerator({to_string(player.gold), "font.ttf", 64, "left", {0,0,0}}));
+    createGUIObject("Diamond Counter", {110, 144, 64, 64}, textGenerator({to_string(player.diamond), "font.ttf", 64, "left", {0,0,0}}));
+    createGUIObject("Emerald Counter", {110, 208, 64, 64}, textGenerator({to_string(player.emerald), "font.ttf", 64, "left", {0,0,0}}));
+    loadTexture("gas_mask.png");
+    loadTexture("gas_mask_bar.png");
+    loadTexture("yes.png");
+    loadTexture("no.png");
     
-    Player player = initMap(&wallList);
-    updateFrame();
-
-    renderWalls(&wallList, player.x, player.y);
-    checkGame(&wallList, &player);
+    initMap(&player, map);
+    
+    updateFrame(&player, map);
+    
+    checkGame(&player, map);
 }
 
 void checkPause()
@@ -356,6 +486,7 @@ void checkPause()
             //     quit = true;
             // }
         }
+        SDL_Delay(1);
     }
 }
 
