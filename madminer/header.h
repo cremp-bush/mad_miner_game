@@ -50,6 +50,7 @@ GUIObject* getGUIObject(string name);
 // void setGUIObject(GUIObject object, string name);
 
 void updateGUIObject(GUIObject *guiObject);
+void updateGUIObject(string name, SDL_Texture *texture);
 
 void createWall(WallList *wList, int x, int y, int type);
 void deleteWall(WallList *wList, unsigned short id);
@@ -62,6 +63,10 @@ void deleteGameObject(GameObjectList *gameObjectList, unsigned short id);
 void clearGameObjects(GameObjectList *gameObjectList);
 void updateGameObject(GameObjectList *gameObjectList, unsigned short id);
 GameObject* getGameObject(GameObjectList *gameObjectList, int x, int y);
+
+void addInventory(Player *player, int type);
+bool checkInventory(Player *player);
+void deleteInventory(Player *player, int slot);
 
 /* init.cpp */
 bool initSdl();
@@ -76,6 +81,7 @@ void initMap(Player *player, int ***map);
 SDL_Texture* textGenerator(TextInfo text_info);
 
 void loadTexture(string texture_name);
+void loadTexture(string texture_name, SDL_Texture *insert_texture);
 void destroyTexture(string texture_name);
 void clearTextures();
 Texture* getTexture(string texture_name);
@@ -100,7 +106,7 @@ void loadPause();
 void renderWalls(Player *player, int ***map);
 void renderGameObjects(Player *player, int ***map);
 void renderGUIObjects();
-void renderInterface(Player *player);
+void renderInterface(Player *player, int ***map);
 
 void updateFrame(Player *player, int ***map);
 void updateFrame();

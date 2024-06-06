@@ -247,88 +247,197 @@ void checkGame(Player *player, int ***map)
             if(time(NULL)-5 >= cooldown) cooldown = 0;
         if(SDL_PollEvent(&event))
         {
-            /* Система копания */
             if(event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
             {
+                /* Система копания */
+                /* Система собирания предметов */
+                // Верхний тайл
                 if((event.button.x >= 640-40 && event.button.x < 640+40) &&
                     (event.button.y >= 360-40-80 && event.button.y < 360-40))
                 {
-                    if(map[player->x][player->y-1][0])
+                    int wallUp = map[player->x][player->y-1][0];
+                    int objectUp = map[player->x][player->y-1][1];
+                    // Копание верхнего тайла
+                    if(wallUp)
                     {
                         player->texture = getTexture("playerU.png");
-                        map[player->x][player->y-1][0] = 0;
-                        mine_selection->rect = {0,0,0,0};
+                        if(wallUp != 5)
+                        {
+                            if(wallUp == 1) player->stamina -= 3;
+                            else if(wallUp == 2) updateGUIObject("Gold Counter", textGenerator({to_string(++player->gold), "font.ttf", 64,  "left", {0,0,0}}));
+                            else if(wallUp == 3) updateGUIObject("Diamond Counter", textGenerator({to_string(++player->diamond), "font.ttf", 64,  "left", {0,0,0}}));
+                            else if(wallUp == 4) updateGUIObject("Emerald Counter", textGenerator({to_string(++player->emerald), "font.ttf", 64,  "left", {0,0,0}}));
+                            player->stamina -= 2;
+                            map[player->x][player->y-1][0] = 0;
+                        }
+                        else
+                        {
+                            // Магазин
+                        }
                         updateFrame(player, map);
                     }
+                    // Собирание предмета верхнего тайла
+                    else if(objectUp)
+                    {
+                        if(checkInventory(player))
+                        {
+                            player->texture = getTexture("playerU.png");
+                            addInventory(player, objectUp);
+                            map[player->x][player->y-1][1] = 0;
+                            updateFrame(player, map);
+                        }
+                    }
                 }
+                // Левый тайл
                 else if((event.button.x >= 640-40-80 && event.button.x < 640-40) &&
                     (event.button.y >= 360-40 && event.button.y < 360+40))
                 {
-                    if(map[player->x-1][player->y][0])
+                    int wallLeft = map[player->x-1][player->y][0];
+                    int objectLeft = map[player->x-1][player->y][1];
+                    // Копание левого тайла
+                    if(wallLeft)
                     {
                         player->texture = getTexture("playerL.png");
-                        map[player->x-1][player->y][0] = 0;
-                        mine_selection->rect = {0,0,0,0};
+                        if(wallLeft != 5)
+                        {
+                            if(wallLeft == 1) player->stamina -= 3;
+                            else if(wallLeft == 2) updateGUIObject("Gold Counter", textGenerator({to_string(++player->gold), "font.ttf", 64,  "left", {0,0,0}}));
+                            else if(wallLeft == 3) updateGUIObject("Diamond Counter", textGenerator({to_string(++player->diamond), "font.ttf", 64,  "left", {0,0,0}}));
+                            else if(wallLeft == 4) updateGUIObject("Emerald Counter", textGenerator({to_string(++player->emerald), "font.ttf", 64,  "left", {0,0,0}}));
+                            player->stamina -= 2;
+                            map[player->x-1][player->y][0] = 0;
+                        }
+                        else
+                        {
+                            // Магазин
+                        }
                         updateFrame(player, map);
                     }
+                    // Собирание предмета левого тайла
+                    else if(objectLeft)
+                    {
+                        if(checkInventory(player))
+                        {
+                            player->texture = getTexture("playerL.png");
+                            addInventory(player, objectLeft);
+                            map[player->x-1][player->y][1] = 0;
+                            updateFrame(player, map);
+                        }
+                    }
                 }
+                // Нижний тайл
                 else if((event.button.x >= 640-40 && event.button.x < 640+40) &&
                     (event.button.y >= 360+40 && event.button.y < 360+40+80))
                 {
-                    if(map[player->x][player->y+1][0])
+                    int wallDown = map[player->x][player->y+1][0];
+                    int objectDown = map[player->x][player->y+1][1];
+                    // Копание нижнего тайла
+                    if(wallDown)
                     {
                         player->texture = getTexture("playerD.png");
-                        map[player->x][player->y+1][0] = 0;
-                        mine_selection->rect = {0,0,0,0};
+                        if(wallDown != 5)
+                        {
+                            if(wallDown == 1) player->stamina -= 3;
+                            else if(wallDown == 2) updateGUIObject("Gold Counter", textGenerator({to_string(++player->gold), "font.ttf", 64,  "left", {0,0,0}}));
+                            else if(wallDown == 3) updateGUIObject("Diamond Counter", textGenerator({to_string(++player->diamond), "font.ttf", 64,  "left", {0,0,0}}));
+                            else if(wallDown == 4) updateGUIObject("Emerald Counter", textGenerator({to_string(++player->emerald), "font.ttf", 64,  "left", {0,0,0}}));
+                            player->stamina -= 2;
+                            map[player->x][player->y+1][0] = 0;
+                        }
+                        else
+                        {
+                            // Магазин
+                        }
                         updateFrame(player, map);
                     }
+                    // Собирание предмета нижнего тайла
+                    else if(objectDown)
+                    {
+                        if(checkInventory(player))
+                        {
+                            player->texture = getTexture("playerD.png");
+                            addInventory(player, objectDown);
+                            map[player->x][player->y+1][1] = 0;
+                            updateFrame(player, map);
+                        }
+                    }
                 }
+                // Правый тайл
                 else if((event.button.x >= 640+40 && event.button.x < 640+40+80) &&
                     (event.button.y >= 360-40 && event.button.y < 360+40))
                 {
-                    if(map[player->x+1][player->y][0])
+                    int wallRight = map[player->x+1][player->y][0];
+                    int objectRight = map[player->x+1][player->y][1];
+                    // Копание правого тайла
+                    if(wallRight)
                     {
                         player->texture = getTexture("playerR.png");
-                        map[player->x+1][player->y][0] = 0;
-                        mine_selection->rect = {0,0,0,0};
+                        if(wallRight != 5)
+                        {
+                            if(wallRight == 1) player->stamina -= 3;
+                            else if(wallRight == 2) updateGUIObject("Gold Counter", textGenerator({to_string(++player->gold), "font.ttf", 64,  "left", {0,0,0}}));
+                            else if(wallRight == 3) updateGUIObject("Diamond Counter", textGenerator({to_string(++player->diamond), "font.ttf", 64,  "left", {0,0,0}}));
+                            else if(wallRight == 4) updateGUIObject("Emerald Counter", textGenerator({to_string(++player->emerald), "font.ttf", 64,  "left", {0,0,0}}));
+                            player->stamina -= 2;
+                            map[player->x+1][player->y][0] = 0;
+                        }
+                        else
+                        {
+                            // Магазин
+                        }
                         updateFrame(player, map);
                     }
+                    // Собирание предмета правого тайла
+                    else if(objectRight)
+                    {
+                        if(checkInventory(player))
+                        {
+                            player->texture = getTexture("playerR.png");
+                            addInventory(player, objectRight);
+                            map[player->x+1][player->y][1] = 0;
+                            updateFrame(player, map);
+                        }
+                    }
                 }
-                
             }
+            /* Система перемещения игрока */
             if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_w)
             {
-                if(!map[player->x][player->y-1][0])
+                if(!map[player->x][player->y-1][0] || map[player->x][player->y-1][0] == 5)
                 {
                     player->texture = getTexture("playerU.png");
                     player->y--;
+                    player->stamina -= 1;
                     updateFrame(player, map);
                 }
             }
             else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_a)
             {
-                if(!map[player->x-1][player->y][0])
+                if(!map[player->x-1][player->y][0] || map[player->x-1][player->y][0] == 5)
                 {
                     player->texture = getTexture("playerL.png");
                     player->x--;
+                    player->stamina -= 1;
                     updateFrame(player, map);
                 }
             }
             else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_s)
             {
-                if(!map[player->x][player->y+1][0])
+                if(!map[player->x][player->y+1][0] || map[player->x][player->y+1][0] == 5)
                 {
                     player->texture = getTexture("playerD.png");
                     player->y++;
+                    player->stamina -= 1;
                     updateFrame(player, map);
                 }
             }
             else if(event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_d)
             {
-                if(!map[player->x+1][player->y][0])
+                if(!map[player->x+1][player->y][0] || map[player->x+1][player->y][0] == 5)
                 {
                     player->texture = getTexture("playerR.png");
                     player->x++;
+                    player->stamina -= 1;
                     updateFrame(player, map);
                 }
             }
@@ -391,6 +500,11 @@ void checkGame(Player *player, int ***map)
         //         updateFrame(player, map);
         //     }
         }
+        if(player->stamina <= 0)
+        {
+            scene = "Main Menu";
+            quit = true;
+        }
         pressed_button = userInput();
         if(pressed_button != NULL)
         {
@@ -446,7 +560,7 @@ void loadGame()
     loadTexture("playerR.png");
     // Загрузка предметов
     loadTexture("generator.png");
-    loadTexture("1.png");
+    loadTexture("item_gold.png");
     loadTexture("2.png");
     loadTexture("3.png");
     // Загрузка выделения
@@ -457,13 +571,15 @@ void loadGame()
     loadTexture("gold_ingot.png");
     loadTexture("diamond_ingot.png");
     loadTexture("emerald_ingot.png");
-    createGUIObject("Gold Counter", {110, 80, 64, 64}, textGenerator({to_string(player.gold), "font.ttf", 64, "left", {0,0,0}}));
-    createGUIObject("Diamond Counter", {110, 144, 64, 64}, textGenerator({to_string(player.diamond), "font.ttf", 64, "left", {0,0,0}}));
-    createGUIObject("Emerald Counter", {110, 208, 64, 64}, textGenerator({to_string(player.emerald), "font.ttf", 64, "left", {0,0,0}}));
+    createGUIObject("Gold Counter", {110, 80, 0, 0}, textGenerator({to_string(player.gold), "font.ttf", 64, "left", {0,0,0}}));
+    createGUIObject("Diamond Counter", {110, 144, 0, 0}, textGenerator({to_string(player.diamond), "font.ttf", 64, "left", {0,0,0}}));
+    createGUIObject("Emerald Counter", {110, 208, 0, 0}, textGenerator({to_string(player.emerald), "font.ttf", 64, "left", {0,0,0}}));
     loadTexture("gas_mask.png");
     loadTexture("gas_mask_bar.png");
     loadTexture("yes.png");
     loadTexture("no.png");
+    loadTexture("inventory_slot.png");
+    loadTexture("Hint", textGenerator({"Нажмите E, чтобы войти в лифт", "font.ttf", 40, "center", {0,0,0}}));
     
     initMap(&player, map);
     

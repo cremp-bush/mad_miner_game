@@ -58,6 +58,23 @@ void loadTexture(string texture_name)
     }
     textureList.count++;
 }
+void loadTexture(string texture_name, SDL_Texture *insert_texture)
+{
+    Texture *texture = new Texture;
+    texture->name = texture_name;
+    texture->texture = insert_texture;
+    SDL_SetTextureScaleMode(texture->texture, SDL_ScaleModeNearest);
+
+    if(textureList.head == NULL) textureList.head = texture;
+    else
+    {
+        Texture *r = textureList.head;
+        while(r->next != NULL) r = r->next;
+        r->next = texture;
+        r = nullptr;
+    }
+    textureList.count++;
+}
 /* Удаление текстуры */
 void destroyTexture(string texture_name)
 {

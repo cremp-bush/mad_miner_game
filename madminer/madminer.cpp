@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
         initSettings();
         background_music = Mix_LoadMUS("data/Music/main_title.ogg");
         Mix_PlayMusic(background_music, -1);
+        Mix_VolumeMusic(10);
 
         /* ќсновной цикл перемещени€ между сценами игры */
         while(!quit)
@@ -32,6 +33,7 @@ int main(int argc, char* argv[])
                 quit = false;
             }
         }
+        Mix_FreeMusic(background_music);
         /* ”ничтожение окна и рендера */
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);

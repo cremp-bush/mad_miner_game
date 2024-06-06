@@ -128,10 +128,11 @@ struct Player
     int x;
     int y;
     Texture *texture;
-    int health = 5;
-    int stamina = 55;
-    bool gas_mask = false;
-    int filter = 55;
+    int inventory[3]{0};
+    int health = 100;
+    short stamina = 100;
+    bool gas_mask = true;
+    int filter = 0;
     int gold = 0;
     int diamond = 0;
     int emerald = 0;

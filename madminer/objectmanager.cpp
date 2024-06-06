@@ -333,6 +333,21 @@ void updateGUIObject(GUIObject *guiObject)
     }
 }
 
+void updateGUIObject(string name, SDL_Texture *texture)
+{
+    if(guiObjectList.count == 0) cout << "[updateGUIObject] Пустой стек!" << endl;
+    else
+    {
+        GUIObject *e = guiObjectList.head;
+        while(e->name != name && e != NULL) e = e->next;
+        if(e == NULL) cout << "[updateGUIObject] Объект не найден!" << endl;
+        else
+        {
+            SDL_DestroyTexture(e->texture);
+            e->texture = texture;
+        };
+    }
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Создание новой стены */
 void createWall(WallList *wList, int x, int y, int type)
@@ -552,4 +567,23 @@ GameObject* getGameObject(GameObjectList *gameObjectList, int x, int y)
         r = nullptr;
     }
     return get;
+}
+
+void addInventory(Player *player, int type)
+{
+    if(player->inventory[0] == 0) player->inventory[0] = type;
+    else if(player->inventory[1] == 0) player->inventory[1] = type;
+    else if(player->inventory[2] == 0) player->inventory[2] = type;
+}
+
+bool checkInventory(Player *player)
+{
+    return !(player->inventory[0]*player->inventory[1]*player->inventory[2]);
+}
+
+void deleteInventory(Player *player, int slot)
+{
+    if(player->inventory[slot-1] != 0) player->inventory[0] = 0;
+    else if(player->inventory[slot-1] != 0) player->inventory[1] = 0;
+    else if(player->inventory[slot-1] != 0) player->inventory[2] = 0;
 }
